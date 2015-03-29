@@ -1,5 +1,7 @@
 package r4MS;
 
+import java.io.File;
+
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -17,6 +19,7 @@ public class orchestrator
          JFileChooser chooser = new JFileChooser();
          FileNameExtensionFilter filter = new FileNameExtensionFilter("Name to ISIN maps", "txt");
          chooser.setFileFilter(filter);
+         chooser.setCurrentDirectory(new File("."));
          int returnVal = chooser.showOpenDialog(null);
          if (returnVal == JFileChooser.APPROVE_OPTION)
          {

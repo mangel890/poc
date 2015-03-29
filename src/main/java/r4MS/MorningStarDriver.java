@@ -21,7 +21,7 @@ public class MorningStarDriver
 
    public void setUp(FundData fundData) throws Exception
    {
-      //System.setProperty("webdriver.chrome.driver", "C:\\RepoMisc\\libs\\ChromeDriver.exe");
+      System.setProperty("webdriver.chrome.driver", "ChromeDriver.exe");
       driver = new ChromeDriver();
       baseUrl = "http://www.morningstar.es/";
       driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
