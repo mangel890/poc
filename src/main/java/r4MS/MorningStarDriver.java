@@ -15,25 +15,25 @@ import org.openqa.selenium.support.ui.Select;
 
 public class MorningStarDriver
 {
-   private ChromeDriver driver;
-   private String baseUrl;
+   private ChromeDriver driver_;
+   private String baseUrl_;
    private static FundData fundData_;
 
    public void setUp(FundData fundData) throws Exception
    {
       System.setProperty("webdriver.chrome.driver", "ChromeDriver.exe");
-      driver = new ChromeDriver();
-      baseUrl = "http://www.morningstar.es/";
-      driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+      driver_ = new ChromeDriver();
+      baseUrl_ = "http://www.morningstar.es/";
+      driver_.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
       fundData_ = fundData;
    }
 
    public void prepareEnvironment() throws Exception
    {
-      driver.get(baseUrl + "/es/");
+      driver_.get(baseUrl_ + "/es/");
 
-      driver.findElement(By.cssSelector("#lnkLogin > span")).click();
-      driver.switchTo().frame("frameContainer");
+      driver_.findElement(By.cssSelector("#lnkLogin > span")).click();
+      driver_.switchTo().frame("frameContainer");
 
       for (int second = 0;; second++)
       {
@@ -50,7 +50,7 @@ public class MorningStarDriver
          Thread.sleep(1000);
       }
 
-      LoginDialog loginDlg = new LoginDialog(null);
+      LoginDialog loginDlg = new LoginDialog(null).hideDni();
       loginDlg.setVisible(true);
       // if logon successfully
       if (loginDlg.isSucceeded())
@@ -58,16 +58,16 @@ public class MorningStarDriver
          // .setText("Hi " + loginDlg.getUsername() + "!");
       }
 
-      driver.findElement(By.id("txtUsername")).clear();
-      driver.findElement(By.id("txtUsername")).sendKeys(loginDlg.getUsername());
-      driver.findElement(By.id("txtPasswordText")).clear();
-      driver.findElement(By.id("txtRealPassword")).clear();
-      driver.findElement(By.id("txtRealPassword")).sendKeys(loginDlg.getPassword());
+      driver_.findElement(By.id("txtUsername")).clear();
+      driver_.findElement(By.id("txtUsername")).sendKeys(loginDlg.getUsername());
+      driver_.findElement(By.id("txtPasswordText")).clear();
+      driver_.findElement(By.id("txtRealPassword")).clear();
+      driver_.findElement(By.id("txtRealPassword")).sendKeys(loginDlg.getPassword());
 
-      driver.findElement(By.cssSelector("a.jqTransformCheckbox")).click();
-      driver.findElement(By.id("btnLogin")).click();
+      driver_.findElement(By.cssSelector("a.jqTransformCheckbox")).click();
+      driver_.findElement(By.id("btnLogin")).click();
 
-      driver.switchTo().window("Object");
+      driver_.switchTo().window("Object");
       for (int second = 0;; second++)
       {
          if (second >= 60)
@@ -83,14 +83,14 @@ public class MorningStarDriver
          Thread.sleep(1000);
       }
       Thread.sleep(5000);
-      driver.findElement(By.linkText("Mi Cartera")).click();
-      driver.findElement(By.cssSelector("div.linkPortfolioNew")).click();
+      driver_.findElement(By.linkText("Mi Cartera")).click();
+      driver_.findElement(By.cssSelector("div.linkPortfolioNew")).click();
 
-      driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_PortfolioNameTextBox")).clear();
-      driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_PortfolioNameTextBox")).sendKeys("MyNewPortfolio5");
-      driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_TransactionRadio")).click();
+      driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_PortfolioNameTextBox")).clear();
+      driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_PortfolioNameTextBox")).sendKeys("MyNewPortfolio5");
+      driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_TransactionRadio")).click();
 
-      driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_NextButton")).click();
+      driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_NextButton")).click();
    }
 
    enum OpType
@@ -104,7 +104,7 @@ public class MorningStarDriver
       int numberOfOperations = 0;
       try
       {
-         POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream("C:\\RepoMisc\\fondos.xls"));
+         POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream("fondos.xls"));
          HSSFWorkbook wb = new HSSFWorkbook(fs);
          HSSFSheet sheet = wb.getSheetAt(0);
 
@@ -138,7 +138,8 @@ public class MorningStarDriver
                      System.out.println("**********************");
                      System.out.println("**********************");
                      System.out.println("**********************");
-                     System.out.println("!ERROR. No Isin found");
+                     System.out.println("ERROR. No Isin found!");
+                     System.out.println("Aborting!");
                      System.out.println("**********************");
                      System.out.println("**********************");
                      System.out.println("**********************");
@@ -198,34 +199,34 @@ public class MorningStarDriver
                      {
 
                         Thread.sleep(4000);
-                        driver.manage().timeouts().pageLoadTimeout(180, TimeUnit.SECONDS);
-                        driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbSecName")).click();
-                        driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbSecName")).clear();
-                        driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbSecName")).sendKeys(isin);
+                        driver_.manage().timeouts().pageLoadTimeout(180, TimeUnit.SECONDS);
+                        driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbSecName")).click();
+                        driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbSecName")).clear();
+                        driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbSecName")).sendKeys(isin);
                         Thread.sleep(1000);
-                        driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbSecName")).sendKeys(" ");
+                        driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbSecName")).sendKeys(" ");
 
                         Thread.sleep(2500);
 
-                        driver.findElement(By.xpath("//body/div[2]/ul/li[2]")).click();
+                        driver_.findElement(By.xpath("//body/div[2]/ul/li[2]")).click();
 
                         if (buyOp)
-                           new Select(driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_ddlTransTypeExtended"))).selectByVisibleText("Comprar");
+                           new Select(driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_ddlTransTypeExtended"))).selectByVisibleText("Comprar");
                         else
-                           new Select(driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_ddlTransTypeExtended"))).selectByVisibleText("Vender");
+                           new Select(driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_ddlTransTypeExtended"))).selectByVisibleText("Vender");
 
-                        driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbShares")).clear();
-                        driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbShares")).sendKeys(String.valueOf(shares).replace(".", ","));
-                        driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbDate")).clear();
-                        driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbDate")).sendKeys(date);
+                        driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbShares")).clear();
+                        driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbShares")).sendKeys(String.valueOf(shares).replace(".", ","));
+                        driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbDate")).clear();
+                        driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbDate")).sendKeys(date);
 
                         if (comission != 0)
                         {
-                           driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbCommission")).clear();
-                           driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbCommission")).sendKeys(String.valueOf(comission + witholding).replace(".", ","));
+                           driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbCommission")).clear();
+                           driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbCommission")).sendKeys(String.valueOf(comission + witholding).replace(".", ","));
                         }
 
-                        driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_AddHolding")).click();
+                        driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_AddHolding")).click();
                      }
                   }
                }
@@ -246,7 +247,7 @@ public class MorningStarDriver
    {
       try
       {
-         driver.findElement(by);
+         driver_.findElement(by);
          return true;
       } catch (NoSuchElementException e)
       {

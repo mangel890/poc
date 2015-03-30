@@ -12,13 +12,22 @@ public class LoginDialog extends JDialog
     */
    private static final long serialVersionUID = 1L;
    private JTextField tfUsername;
+   private JTextField tfDni;
    private JPasswordField pfPassword;
    private JLabel lbUsername;
+   private JLabel lbDni;
    private JLabel lbPassword;
    private JButton btnLogin;
    private JButton btnCancel;
    private boolean succeeded;
 
+   public LoginDialog hideDni()
+   {
+      tfDni.setEnabled(false);
+      lbDni.setEnabled(false);
+      return this;
+   }
+   
    public LoginDialog(Frame parent)
    {
       super(parent, "Login", true);
@@ -39,16 +48,28 @@ public class LoginDialog extends JDialog
       cs.gridy = 0;
       cs.gridwidth = 2;
       panel.add(tfUsername, cs);
+      
+      lbDni = new JLabel("Dni: ");
+      cs.gridx = 0;
+      cs.gridy = 1;
+      cs.gridwidth = 1;
+      panel.add(lbDni, cs);
+
+      tfDni = new JTextField(20);
+      cs.gridx = 1;
+      cs.gridy = 1;
+      cs.gridwidth = 2;
+      panel.add(tfDni, cs);
 
       lbPassword = new JLabel("Password: ");
       cs.gridx = 0;
-      cs.gridy = 1;
+      cs.gridy = 2;
       cs.gridwidth = 1;
       panel.add(lbPassword, cs);
 
       pfPassword = new JPasswordField(20);
       cs.gridx = 1;
-      cs.gridy = 1;
+      cs.gridy = 2;
       cs.gridwidth = 2;
       panel.add(pfPassword, cs);
       panel.setBorder(new LineBorder(Color.GRAY));
@@ -107,6 +128,11 @@ public class LoginDialog extends JDialog
       return new String(pfPassword.getPassword());
    }
 
+   public String getDni()
+   {
+      return tfDni.getText().trim();
+   }
+   
    public boolean isSucceeded()
    {
       return succeeded;

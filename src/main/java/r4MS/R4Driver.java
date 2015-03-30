@@ -1,56 +1,29 @@
 package r4MS;
-import java.io.FileInputStream;
-import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import org.apache.poi.ss.usermodel.Row;
 import org.openqa.selenium.By;
-import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.ui.Select;
 
 public class R4Driver
 {
-   private ChromeDriver driver;
-   private String baseUrl;
+   private ChromeDriver driver_;
 
    public void setUp() throws Exception
    {
-      System.setProperty("webdriver.chrome.driver", "C:\\RepoMisc\\libs\\ChromeDriver.exe");
-      driver = new ChromeDriver();
-      baseUrl = "http://www.morningstar.es/";
-      driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+      System.setProperty("webdriver.chrome.driver", "ChromeDriver.exe");
+      driver_ = new ChromeDriver();
+      driver_.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
    }
 
-   public void prepareEnvironment() throws Exception
+   public String prepareEnvironment() throws Exception
    {
-      driver.get(baseUrl + "/es/");
-
-      driver.findElement(By.cssSelector("#lnkLogin > span")).click();
-      driver.switchTo().frame("frameContainer");
-
-      for (int second = 0;; second++)
-      {
-         if (second >= 60)
-            throw new Exception("timeout");
-         try
-         {
-            if (isElementPresent(By.id("txtUsername")))
-               break;
-         } catch (Exception e)
-         {
-            e.printStackTrace(System.out);
-         }
-         Thread.sleep(1000);
-      }
-
+      driver_.get("https://www.fondotop.com/");
+      Thread.sleep(1000);
+      while (driver_.findElement(By.id("USUARIO")) == null );
+      
+      Thread.sleep(1000);
       LoginDialog loginDlg = new LoginDialog(null);
       loginDlg.setVisible(true);
       // if logon successfully
@@ -59,39 +32,19 @@ public class R4Driver
          // .setText("Hi " + loginDlg.getUsername() + "!");
       }
 
-      driver.findElement(By.id("txtUsername")).clear();
-      driver.findElement(By.id("txtUsername")).sendKeys(loginDlg.getUsername());
-      driver.findElement(By.id("txtPasswordText")).clear();
-      driver.findElement(By.id("txtRealPassword")).clear();
-      driver.findElement(By.id("txtRealPassword")).sendKeys(loginDlg.getPassword());
+      driver_.findElement(By.id("USUARIO")).clear();
+      driver_.findElement(By.id("USUARIO")).sendKeys(loginDlg.getUsername());
+      driver_.findElement(By.id("PASSWORD")).clear();
+      driver_.findElement(By.id("PASSWORD")).sendKeys(loginDlg.getPassword());
+      driver_.findElement(By.id("EF_DNI")).clear();
+      driver_.findElement(By.id("EF_DNI")).sendKeys(loginDlg.getDni());
 
-      driver.findElement(By.cssSelector("a.jqTransformCheckbox")).click();
-      driver.findElement(By.id("btnLogin")).click();
+      driver_.findElement(By.cssSelector("b")).click();
+      
+      driver_.get("https://www.fondotop.com/fondotop?TX=login&OPC=7");
 
-      driver.switchTo().window("Object");
-      for (int second = 0;; second++)
-      {
-         if (second >= 60)
-            throw new Exception("timeout");
-         try
-         {
-            if (isElementPresent(By.linkText("Mi Cartera")))
-               break;
-         } catch (Exception e)
-         {
-            e.printStackTrace(System.out);
-         }
-         Thread.sleep(1000);
-      }
-      Thread.sleep(5000);
-      driver.findElement(By.linkText("Mi Cartera")).click();
-      driver.findElement(By.cssSelector("div.linkPortfolioNew")).click();
+      return driver_.getPageSource();
 
-      driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_PortfolioNameTextBox")).clear();
-      driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_PortfolioNameTextBox")).sendKeys("MyNewPortfolio5");
-      driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_TransactionRadio")).click();
-
-      driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_NextButton")).click();
    }
 
    enum OpType
@@ -99,8 +52,36 @@ public class R4Driver
       Buy, Sell;
    }
 
-   public void populateFunds(boolean testingMode)
+   public void extractFundData(String pageSource)
    {
+
+      String fundPattern = "<tr><td><a href=(.*?)";
+      
+      Pattern r = Pattern.compile(fundPattern);
+      Matcher m = r.matcher(pageSource);
+      if (m.find( )) 
+      {
+         System.out.println(m.group(0));
+         System.out.println(m.group(1));
+         System.out.println(m.group(2));
+         System.out.println(m.group(3));
+         System.out.println(m.group(4));
+      }
+      else
+      {
+         System.out.println("No match");
+      }
+      ////       tr><td><a href=(.*?)<\/td><\/tr>
+      
+/*      <tr><td><a href='fondotop?TX=buscador_fnd&OPC=15&ISIN=LU0090865873&DIVI=EUR&MOSTRARCNT=1&BSQ=1'>
+      ABERDEEN LIQUIDITY EUR "A2" (EUR) ACC / LU0090865873</a></td><td>
+      <div align='center'>EUR</div></td><td><div align='right'>0,448000</div></td>
+      <td><div align='right'>446,214022</div></td><td><div align='right'>199,90</div></td>
+      <td><div align='right'>0,12</div></td><td><div align='right'>0,11</div></td><td>
+      <div align='right'>-0,10</div></td><td><div align='right'>-0,05%</div></td></tr>
+  */
+      
+      /*
       int numberOfFunds = 0;
       int numberOfOperations = 0;
       try
@@ -199,34 +180,34 @@ public class R4Driver
                      {
 
                         Thread.sleep(4000);
-                        driver.manage().timeouts().pageLoadTimeout(180, TimeUnit.SECONDS);
-                        driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbSecName")).click();
-                        driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbSecName")).clear();
-                        driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbSecName")).sendKeys(isin);
+                        driver_.manage().timeouts().pageLoadTimeout(180, TimeUnit.SECONDS);
+                        driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbSecName")).click();
+                        driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbSecName")).clear();
+                        driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbSecName")).sendKeys(isin);
                         Thread.sleep(1000);
-                        driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbSecName")).sendKeys(" ");
+                        driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbSecName")).sendKeys(" ");
 
                         Thread.sleep(2500);
 
-                        driver.findElement(By.xpath("//body/div[2]/ul/li[2]")).click();
+                        driver_.findElement(By.xpath("//body/div[2]/ul/li[2]")).click();
 
                         if (buyOp)
-                           new Select(driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_ddlTransTypeExtended"))).selectByVisibleText("Comprar");
+                           new Select(driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_ddlTransTypeExtended"))).selectByVisibleText("Comprar");
                         else
-                           new Select(driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_ddlTransTypeExtended"))).selectByVisibleText("Vender");
+                           new Select(driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_ddlTransTypeExtended"))).selectByVisibleText("Vender");
 
-                        driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbShares")).clear();
-                        driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbShares")).sendKeys(String.valueOf(shares).replace(".", ","));
-                        driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbDate")).clear();
-                        driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbDate")).sendKeys(date);
+                        driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbShares")).clear();
+                        driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbShares")).sendKeys(String.valueOf(shares).replace(".", ","));
+                        driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbDate")).clear();
+                        driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbDate")).sendKeys(date);
 
                         if (comission != 0)
                         {
-                           driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbCommission")).clear();
-                           driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbCommission")).sendKeys(String.valueOf(comission + witholding).replace(".", ","));
+                           driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbCommission")).clear();
+                           driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_tbCommission")).sendKeys(String.valueOf(comission + witholding).replace(".", ","));
                         }
 
-                        driver.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_AddHolding")).click();
+                        driver_.findElement(By.id("ctl00_ctl00_MainContent_PM_MainContent_AddHolding")).click();
                      }
                   }
                }
@@ -241,44 +222,7 @@ public class R4Driver
       {
          ioe.printStackTrace();
       }
+      */
    }
-
-   private boolean isElementPresent(By by)
-   {
-      try
-      {
-         driver.findElement(by);
-         return true;
-      } catch (NoSuchElementException e)
-      {
-         return false;
-      }
-   }
-
-   private static FundData fundData_;
-
-   public static void main(String[] args)
-   {
-      R4Driver twd = new R4Driver();
-      try
-      {
-         JFileChooser chooser = new JFileChooser();
-         FileNameExtensionFilter filter = new FileNameExtensionFilter("Name to ISIN maps", "txt");
-         chooser.setFileFilter(filter);
-         int returnVal = chooser.showOpenDialog(null);
-         if (returnVal == JFileChooser.APPROVE_OPTION)
-         {
-
-            fundData_ = new FundData(chooser.getSelectedFile().getAbsoluteFile().toString());
-            twd.setUp();
-            twd.populateFunds(true);
-            twd.prepareEnvironment();
-            twd.populateFunds(false);
-         }
-      } catch (Exception e)
-      {
-         e.printStackTrace();
-      }
-
-   }
+ 
 }
